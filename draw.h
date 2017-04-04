@@ -6,6 +6,11 @@ typedef struct {
 	volatile u32 cnt;
 } DMA_CONTROLLER;
 
+#define REG_DISPSTAT *(unsigned short*) 0x04000004
+#define VBLANK (1 << 0)
+#define HBLANK (1 << 1)
+#define GET_BLANK(mask) ((REG_DISPSTAT) & mask)
+
 #define DMA ((volatile DMA_CONTROLLER*) 0x40000B0)
 #define DMA_CHANNEL_0 0
 #define DMA_CHANNEL_1 1
@@ -37,8 +42,33 @@ typedef struct {
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 160
 
+#define TILE_SIZE	32
+
+#define COLOR(R,G,B) (((R) & 0x1F) | (((G) & 0x1F) << 5) | (((B) & 0x1F) << 10))
+#define BLACK   COLOR(0 , 0 , 0 )
+#define WHITE   COLOR(31, 31, 31)
+#define RED     COLOR(31, 0 , 0 )
+#define GREEN   COLOR(0 , 31, 0 )
+#define BLUE    COLOR(0 , 0 , 31)
+#define YELLOW  COLOR(31, 31, 0 )
+#define MAGENTA COLOR(31, 0 , 31)
+#define CYAN    COLOR(0 , 31, 31)
+#define ORANGE  COLOR(31, 15, 0 )
+#define BROWN   COLOR(18, 9 , 0 )
+#define PURPLE  COLOR(15, 0 , 15)
+#define TEAL    COLOR(0 , 15, 15)
+#define MAROON  COLOR(15, 0 , 0 )
+#define GREY    COLOR(15, 15, 15)
+#define PINK    COLOR(31, 18, 19)
+#define TEXT_COLOR	0x031af
+#define BACKGROUND	0x077ff
+
 extern unsigned short *videoBuffer;
-void drawrow(int rs, int cs, int ri, int wi, const unsigned short *image);
+void drawImageRow(int rs, int cs, int ri, int wi, const unsigned short *image);
 void drawImage3(int r, int c, int width, int height, const u16* image);
 void drawBgImage(const u16* image);
+void drawTile(int oldr, int oldc, int r, int c, u16 color);
+void drawRect(int r, int c, int width, int height, u16 color);
 void setPixel(int r, int c, unsigned short color);
+void waitForVBlank();
+void waitForHBlank();
