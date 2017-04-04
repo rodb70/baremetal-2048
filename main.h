@@ -33,3 +33,14 @@
 #define BUTTON_R      (1 << 8)
 #define BUTTON_L      (1 << 9)
 #define KEY_DOWN_NOW(key) (~(BUTTONS) & key)
+
+void waitForVBlank();
+
+enum GBAState {
+	DRAW_START,
+	START,
+	DRAW_GAME,
+	GAME,
+	DRAW_END,
+	END
+};

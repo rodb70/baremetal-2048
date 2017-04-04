@@ -2,38 +2,27 @@
 // Author: Arda Pekis
 
 #include "main.h"
-
-// State enum definition
-enum GBAState {
-	DRAW_START,
-	START,
-	DRAW_GAME,
-	GAME,
-	DRAW_END,
-	END
-};
-
-void waitForVBlank()
-{
-	while(REG_VCOUNT >= 160);
-	while(REG_VCOUNT < 160);
-}
+#include "screens.h"
 
 int main() {
 
 	REG_DISPCNT = MODE_3 | BG2_EN;
 
-	enum GBAState state = START;
+	enum GBAState state = DRAW_START;	
+	/*
 	int select_depressed = 0;
 	int left_depressed = 0;
 	int right_depressed = 0;
 	int up_depressed = 0;
 	int down_depressed = 0;
+	*/
 
 	while(1) {
 		waitForVBlank();
 		switch(state) {
 		case DRAW_START:
+			drawStart();
+			state = START;
 			break;
 		case START:
 			break;
@@ -49,4 +38,10 @@ int main() {
 	}
 
 	return 0;
+}
+
+void waitForVBlank()
+{
+	while(REG_VCOUNT >= 160);
+	while(REG_VCOUNT < 160);
 }
