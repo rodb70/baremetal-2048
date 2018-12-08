@@ -8,10 +8,14 @@ typedef struct {
 	int c;
 	int dr;
 	int dc;
-	unsigned short color;
-} MOVING_TILE;
+	const unsigned short *image;
+	int count;
+	int value;
+} Tile;
 
-extern char board[ROWS][COLS];
+extern Tile board[ROWS][COLS];
 
-void startGame();
+void addNewTile();
 void animate(Button button);
+void clearGame();
+void drawGame();

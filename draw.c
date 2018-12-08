@@ -14,12 +14,11 @@ u16 *videoBuffer = (u16*) 0x06000000;
  */
 void drawImageRow(int rs, int cs, int ri, int wi, const u16* image)
 {
-	waitForHBlank();
 	if (rs >= SCREEN_HEIGHT) return;
 	if (cs >= SCREEN_WIDTH) return;
 	DMA[3].src = image + (ri * wi);
 	DMA[3].dst = videoBuffer + (SCREEN_WIDTH * rs) + cs;
-	int count = (cs + wi >= SCREEN_WIDTH) ? SCREEN_WIDTH - cs : cs + wi;
+	int count = (cs + wi >= SCREEN_WIDTH) ? SCREEN_WIDTH - cs : wi;
 	DMA[3].cnt = DMA_SOURCE_INCREMENT | DMA_ON | DMA_DESTINATION_INCREMENT | count;
 }
 
@@ -48,10 +47,16 @@ void drawImage3(int r, int c, int width, int height, const u16* image)
  */
 void drawBgImage(const u16* image)
 {
-	waitForVBlank();
 	DMA[3].src = image;
 	DMA[3].dst = videoBuffer;
 	DMA[3].cnt = DMA_SOURCE_INCREMENT | DMA_ON | DMA_DESTINATION_INCREMENT | (SCREEN_WIDTH * SCREEN_HEIGHT);
+}
+
+void fillBg(u16 color)
+{
+	DMA[3].src = &color;
+	DMA[3].dst = videoBuffer;
+	DMA[3].cnt = DMA_SOURCE_FIXED | DMA_ON | DMA_DESTINATION_INCREMENT | (SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 
 /**
@@ -62,17 +67,15 @@ void drawBgImage(const u16* image)
  * @param[in]	c	The new column coordinate of the tile.
  * @param[in]	color	The color of the tile.
  */
-void drawTile(int oldr, int oldc, int r, int c, u16 color)
+void drawTile(int oldr, int oldc, int r, int c, const u16* image)
 {
 	u16 textColor = TEXT_COLOR;
-	int deleteR = (r >= oldr) ? oldr : r - TILE_SIZE;
-	int deleteC = (c >= oldc) ? oldc : c - TILE_SIZE;
+	int deleteR = (r >= oldr) ? oldr : r + TILE_SIZE;
+	int deleteC = (c >= oldc) ? oldc : c + TILE_SIZE;
 	int deleteWidth = (c != oldc) ? (c > oldc) ? c - oldc : oldc - c : TILE_SIZE;
 	int deleteHeight = (r != oldr) ? (r > oldr) ? r - oldr : oldr - r : TILE_SIZE;
 	drawRect(deleteR, deleteC, deleteWidth, deleteHeight, textColor);
-	// TODO: Draw over text.
-	drawRect(r, c, TILE_SIZE, TILE_SIZE, color);
-	// TODO: Draw new text.
+	drawImage3(r, c, TILE_SIZE, TILE_SIZE, image);
 }
 
 /**

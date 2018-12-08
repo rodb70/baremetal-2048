@@ -5,6 +5,7 @@
 #include "screens.h"
 #include "game.h"
 #include "draw.h"
+#include "Tile2.h"
 
 int main() {
 
@@ -16,7 +17,9 @@ int main() {
 	while(1) {
 		switch(state) {
 		case DRAW_START:
+			waitForVBlank();
 			drawStart();
+			clearGame();
 			state = START;
 			score = 0;
 			break;
@@ -25,42 +28,53 @@ int main() {
 			if (buttonJustPressed(START_BUTTON))
 			{
 				state = DRAW_GAME;
-				//startGame();
+				addNewTile();
+				waitForVBlank();
+				fillBg(BACKGROUND);
+				drawRect(6, 6, 152, 152, TEXT_COLOR);
 			}
 			break;
 		case DRAW_GAME:
-			// TODO: Draw game screen.
-			animate(UP_BUTTON);
+			waitForVBlank();
+			drawGame();
 			state = GAME;
 			break;
 		case GAME:
-			// TODO: Check for game over.
 			updateAllKeys();
 			if (buttonJustPressed(SELECT_BUTTON))
 			{
 				state = DRAW_START;
 				break;
 			}
+			else if (buttonJustPressed(START_BUTTON))
+			{
+				state = DRAW_END;
+				break;
+			}
 			else if (buttonJustPressed(UP_BUTTON))
 			{
-
+				animate(UP_BUTTON);
 			}
 			else if (buttonJustPressed(DOWN_BUTTON))
 			{
-
+				animate(DOWN_BUTTON);
 			}
 			else if (buttonJustPressed(LEFT_BUTTON))
 			{
-
+				animate(LEFT_BUTTON);
 			}
 			else if (buttonJustPressed(RIGHT_BUTTON))
 			{
-
+				animate(RIGHT_BUTTON);
 			}
-			else break;
-			state = DRAW_GAME;
+			else
+			{
+				break;
+			}
+			state = DRAW_GAME;			
 			break;
 		case DRAW_END:
+			waitForVBlank();
 			drawEnd(score);
 			state = END;
 			break;
