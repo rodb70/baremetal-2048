@@ -12,7 +12,6 @@ int main() {
 	REG_DISPCNT = MODE_3 | BG2_EN;
 
 	enum GBAState state = DRAW_START;
-	int score = 0;
 
 	while(1) {
 		switch(state) {
@@ -21,7 +20,6 @@ int main() {
 			drawStart();
 			clearGame();
 			state = START;
-			score = 0;
 			break;
 		case START:
 			updateAllKeys();
@@ -37,18 +35,25 @@ int main() {
 		case DRAW_GAME:
 			waitForVBlank();
 			drawGame();
-			state = GAME;
+			if (gameOver())
+			{
+				state = DRAW_END;
+			}
+			else
+			{
+				state = GAME;
+			}
 			break;
 		case GAME:
 			updateAllKeys();
 			if (buttonJustPressed(SELECT_BUTTON))
 			{
-				state = DRAW_START;
+				state = DRAW_END;
 				break;
 			}
 			else if (buttonJustPressed(START_BUTTON))
 			{
-				state = DRAW_END;
+				state = DRAW_START;
 				break;
 			}
 			else if (buttonJustPressed(UP_BUTTON))
@@ -75,7 +80,7 @@ int main() {
 			break;
 		case DRAW_END:
 			waitForVBlank();
-			drawEnd(score);
+			drawEnd();
 			state = END;
 			break;
 		case END:

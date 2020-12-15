@@ -15,6 +15,7 @@
 
 extern int srcBoard[ROWS][COLS];
 extern int dstBoard[ROWS][COLS];
+extern int score;
 
 void addNewTile();
 void play(Button button);
@@ -22,3 +23,4 @@ void moveTile(int srcRow, int srcCol, int dr, int dc);
 const unsigned short *getImage(int tile);
 void clearGame();
 void drawGame();
+int gameOver();

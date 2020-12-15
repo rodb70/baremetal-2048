@@ -21,6 +21,8 @@ int srcBoard[ROWS][COLS];
 // The destination board state.
 int dstBoard[ROWS][COLS];
 
+int score;
+
 // Sample locations until we sucessfully add a new tile or exceed spawn attempts.
 void addNewTile()
 {
@@ -154,6 +156,8 @@ void moveTile(int srcRow, int srcCol, int dr, int dc)
 		if (dstBoard[srcRow][blkCol] == srcBoard[srcRow][srcCol])
 		{
 			dstBoard[srcRow][blkCol] = 2 * srcBoard[srcRow][srcCol];
+			// Add merged value to score.
+			score += dstBoard[srcRow][blkCol];
 			return;
 		}
 		else
@@ -205,6 +209,8 @@ void moveTile(int srcRow, int srcCol, int dr, int dc)
 		if (dstBoard[blkRow][srcCol] == srcBoard[srcRow][srcCol])
 		{
 			dstBoard[blkRow][srcCol] = 2 * srcBoard[srcRow][srcCol];
+			// Add merged value to score.
+			score += dstBoard[blkRow][srcCol];
 			return;
 		}
 		else
@@ -247,11 +253,13 @@ void drawGame()
 
 void clearGame()
 {
+	score = 0;
 	for (int i = 0; i < ROWS; i++)
 	{
 		for (int j = 0; j < COLS; j++)
 		{
 			srcBoard[i][j] = 0;
+			dstBoard[i][j] = 0;
 		}
 	}
 }
@@ -297,4 +305,67 @@ const unsigned short *getImage(int tile)
 	default:
 		return Tile2;
 	}
+}
+
+int gameOver()
+{
+	// If the 2048 tile has been created, the game is over.
+	for (int r = 0; r < ROWS; r++)
+	{
+		for (int c = 0; c < COLS; c++)
+		{
+			if (srcBoard[r][c] == 2048)
+			{
+				return 1;
+			}
+		}
+	}
+	// If any values are 0, the game is not over.
+	for (int r = 0; r < ROWS; r++)
+	{
+		for (int c = 0; c < COLS; c++)
+		{
+			if (!srcBoard[r][c])
+			{
+				return 0;
+			}
+		}
+	}
+	// If any neighbors are equal, the game is not over.
+	for (int r = 0; r < ROWS; r++)
+	{
+		for (int c = 0; c < COLS; c++)
+		{
+			if (r > 0)
+			{
+				if (srcBoard[r][c] == srcBoard[r-1][c])
+				{
+					return 0;
+				}
+			}
+			if (r < ROWS-1)
+			{
+				if (srcBoard[r][c] == srcBoard[r+1][c])
+				{
+					return 0;
+				}
+			}
+			if (c > 0)
+			{
+				if (srcBoard[r][c] == srcBoard[r][c-1])
+				{
+					return 0;
+				}
+			}
+			if (c < COLS-1)
+			{
+				if (srcBoard[r][c] == srcBoard[r][c+1])
+				{
+					return 0;
+				}
+			}
+		}
+	}
+	// Otherwise, the game is over.
+	return 1;
 }

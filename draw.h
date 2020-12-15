@@ -43,6 +43,8 @@ typedef struct {
 #define SCREEN_HEIGHT 160
 
 #define TILE_SIZE	32
+#define NUM_WIDTH	6
+#define NUM_HEIGHT	9
 
 #define COLOR(R,G,B) (((R) & 0x1F) | (((G) & 0x1F) << 5) | (((B) & 0x1F) << 10))
 #define BLACK   COLOR(0 , 0 , 0 )
@@ -68,6 +70,7 @@ void drawImageRow(int rs, int cs, int ri, int wi, const unsigned short *image);
 void drawImage3(int r, int c, int width, int height, const u16* image);
 void drawBgImage(const u16* image);
 void drawTile(int oldr, int oldc, int r, int c, const u16* image);
+void drawNumber(int rs, int cs, int number);
 void drawRect(int r, int c, int width, int height, u16 color);
 void setPixel(int r, int c, unsigned short color);
 void waitForVBlank();

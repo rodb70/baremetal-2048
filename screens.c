@@ -2,15 +2,15 @@
 #include "screens.h"
 #include "startScreen.h"
 #include "endScreen.h"
+#include "game.h"
 
 void drawStart()
 {
 	drawBgImage(startScreen);
 }
 
-void drawEnd(int score)
+void drawEnd()
 {
 	drawBgImage(endScreen);
-	int i = score;
-	score = i;
+	drawNumber(100, 140, score);
 }

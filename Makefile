@@ -13,12 +13,12 @@ PROGNAME = 2048
 # that will be compiled into your program. For example
 # if you have main.c and myLib.c then in the following
 # line you would put main.o and myLib.o
-OFILES = main.o draw.o endScreen.o startScreen.o screens.o keys.o game.o Tile2.o Tile4.o Tile8.o Tile16.o Tile32.o Tile64.o Tile128.o Tile256.o Tile512.o Tile1024.o Tile2048.o
+OFILES = main.o draw.o endScreen.o startScreen.o screens.o keys.o game.o Tile2.o Tile4.o Tile8.o Tile16.o Tile32.o Tile64.o Tile128.o Tile256.o Tile512.o Tile1024.o Tile2048.o Digits.o
 
 # The header files you have created.
 # This is necessary to determine when to recompile for files.
 # This should be a space (SPACE!) separated list of .h files
-HFILES = main.h draw.h endScreen.h startScreen.h screens.h keys.h game.h Tile2.h Tile4.h Tile8.h Tile16.h Tile32.h Tile64.h Tile128.h Tile256.h Tile512.h Tile1024.h Tile2048.h
+HFILES = main.h draw.h endScreen.h startScreen.h screens.h keys.h game.h Tile2.h Tile4.h Tile8.h Tile16.h Tile32.h Tile64.h Tile128.h Tile256.h Tile512.h Tile1024.h Tile2048.h Digits.h
 
 ################################################################################
 # These are various settings used to make the GBA toolchain work

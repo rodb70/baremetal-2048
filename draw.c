@@ -1,5 +1,6 @@
 #include "draw.h"
 #include "game.h"
+#include "Digits.h"
 
 u16 *videoBuffer = (u16*) 0x06000000;
 
@@ -36,6 +37,59 @@ void drawImage3(int r, int c, int width, int height, const u16* image)
 	for (int i = 0; i < height; i++)
 	{
 		drawImageRow(r + i, c, i, width, image);
+	}
+}
+
+/**
+ * Draw a selection of an image onto the screen at provided coordinates using DMA.
+ *
+ * @param[in]	rs	The row of the screen for the top-left corner.
+ * @param[in]	cs	The column of the screen for the top-left corner.
+ * @param[in]	width	The width of the image being drawn.
+ * @param[in]	height	The height of the image being drawn.
+ * @param[in]	ri		The row of the image for the top-left corner.
+ * @param[in]	ci		The column of the image for the top-left corner.
+ * @param[in]	rows	Number of rows to draw.
+ * @param[in]	cols	Number of columns in draw.
+ * @param[in]	image	The image to draw on the screen.
+ */
+void drawImageSection(int rs, int cs, int width, int height, int ri, int ci, int rows, int cols, const u16* image)
+{
+	if (rs >= SCREEN_HEIGHT) return;
+	if (cs >= SCREEN_WIDTH) return;
+	if (ri + rows > height) return;
+	if (ci + cols > width) return;
+	for (int i = 0; i < rows; i++)
+	{
+		DMA[3].src = image + (width * (ri+i)) + ci;
+		DMA[3].dst = videoBuffer + (SCREEN_WIDTH * (rs+i)) + cs;
+		DMA[3].cnt = DMA_SOURCE_INCREMENT | DMA_ON | DMA_DESTINATION_INCREMENT | cols;
+	}
+}
+
+
+void drawNumber(int rs, int cs, int number)
+{
+	static int subtractors[] = {100000, 10000, 1000, 100, 10, 1};
+	for (int i = 0; i < 6; i++)
+	{
+		int count = 0;
+		while (number >= subtractors[i])
+		{
+			number -= subtractors[i];
+			count += 1;
+		}
+		drawImageSection(
+			rs,
+			cs + (NUM_WIDTH + 2) * i,
+			DIGITS_WIDTH,
+			DIGITS_HEIGHT,
+			0,
+			count * NUM_WIDTH,
+			NUM_HEIGHT,
+			NUM_WIDTH,
+			Digits
+		);
 	}
 }
 
