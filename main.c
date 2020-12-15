@@ -12,7 +12,7 @@ int main() {
 	REG_DISPCNT = MODE_3 | BG2_EN;
 
 	enum GBAState state = DRAW_START;
-	int score = 0;	
+	int score = 0;
 
 	while(1) {
 		switch(state) {

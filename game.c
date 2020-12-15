@@ -217,17 +217,21 @@ void moveTile(int srcRow, int srcCol, int dr, int dc)
 
 void drawGame()
 {
-	// Draw the Background.
-	//fillBg(BACKGROUND);
-	drawRect(6, 6, 152, 152, TEXT_COLOR);
 	// Draw the tiles.
 	for (int r = 0; r < ROWS; r++)
 	{
 		for (int c = 0; c < COLS; c++)
 		{
-			if (dstBoard[r][c])
+			if (dstBoard[r][c] != srcBoard[r][c])
 			{
-				drawImage3(OFFSET_R + CELL_R * r, OFFSET_C + CELL_C * c, TILE_SIZE, TILE_SIZE, getImage(dstBoard[r][c]));
+				if (dstBoard[r][c])
+				{
+					drawImage3(OFFSET_R + CELL_R * r, OFFSET_C + CELL_C * c, TILE_SIZE, TILE_SIZE, getImage(dstBoard[r][c]));
+				}
+				else
+				{
+					drawRect(OFFSET_R + CELL_R * r, OFFSET_C + CELL_C * c, TILE_SIZE, TILE_SIZE, TEXT_COLOR);
+				}
 			}
 		}
 	}

@@ -98,7 +98,7 @@ void drawRect(int r, int c, int width, int height, u16 color)
 }
 
 /**
- * Draws a pixel of onto the screen. Use drawImage when drawing large
+ * Draws a pixel onto the screen. Use drawImage when drawing large
  * blocks of pixels.
  *
  * @param[in]	r	Row coordinate of pixel.
