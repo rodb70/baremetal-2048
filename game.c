@@ -15,209 +15,228 @@
 
 #include <stdlib.h>
 
-Tile board[ROWS][COLS];
+// The current board state.
+int srcBoard[ROWS][COLS];
 
+// The destination board state.
+int dstBoard[ROWS][COLS];
+
+// Sample locations until we sucessfully add a new tile or exceed spawn attempts.
 void addNewTile()
 {
-	int randRow = rand() % ROWS;
-	int randCol = rand() % COLS;
-	for (int i = 0; i < ROWS; i++)
+	int attempts = 0;
+	while (attempts < (ROWS * COLS))
 	{
-		for (int j = 0; j < COLS; j++)
+		int randRow = rand() % ROWS;
+		int randCol = rand() % COLS;
+		// 75% chance of a 2 Tile and 25% change of 4 Tile.
+		int randVal = (rand() % 4) ? 2 : 4;
+		if (!dstBoard[randRow][randCol])
 		{
-			if (i == randRow && j == randCol)
-			{
-				Tile newTile;
-				newTile.r = i * 36 + 10;
-				newTile.c = j * 36 + 10;
-				newTile.dr = 0;
-				newTile.dc = 0;
-				newTile.count = 0;
-				newTile.value = 2;
-				newTile.image = Tile2;
-				if (board[i][j].r == 0)
-				{
-					board[i][j] = newTile;
-				}
-				return;
-			}
+			dstBoard[randRow][randCol] = randVal;
+			return;
+		}
+		else
+		{
+			attempts += 1;
 		}
 	}
 }
 
-void animate(Button button)
+// Find the destination state given the current state and the player action.
+void play(Button button)
 {
-	if (button == UP_BUTTON)
+	// Clear the destination board.
+	for (int r = 0; r < ROWS; r++)
 	{
-		for (int i = 1; i < ROWS; i++)
+		for (int c = 0; c < COLS; c++)
 		{
-			for (int j = 0; j < COLS; j++)
+			dstBoard[r][c] = 0;
+		}
+	}
+
+	switch (button)
+	{
+	case UP_BUTTON:
+		for (int r = 0; r < ROWS; r++)
+		{
+			for (int c = 0; c < COLS; c++)
 			{
-				if (board[i][j].r != 0 && ((board[i-1][j].r == 0) || (board[i][j].value == board[i-1][j].value)))
-				{
-					board[i][j].dr = -4;
-					board[i][j].count = 9;
-				}
+				moveTile(r, c, -1, 0);
 			}
 		}
-	} else if (button == DOWN_BUTTON)
-	{
-		for (int i = ROWS - 2; i >= 0; i--)
+		break;
+
+	case DOWN_BUTTON:
+		for (int r = ROWS-1; r >= 0; r--)
 		{
-			for (int j = 0; j < COLS; j++)
+			for (int c = 0; c < COLS; c++)
 			{
-				if (board[i][j].r != 0 && ((board[i+1][j].r == 0) || (board[i][j].value == board[i+1][j].value)))
-				{
-					board[i][j].dr = 4;
-					board[i][j].count = 9;
-				}
+				moveTile(r, c, 1, 0);
 			}
 		}
-	} else if (button == LEFT_BUTTON)
-	{
-		for (int i = 0; i < ROWS; i++)
+		break;
+
+	case LEFT_BUTTON:
+		for (int c = 0; c < COLS; c++)
 		{
-			for (int j = 1; j < COLS; j++)
+			for (int r = 0; r < ROWS; r++)
 			{
-				if (board[i][j].r != 0 && ((board[i][j-1].r == 0) || (board[i][j].value == board[i][j-1].value)))
-				{
-					board[i][j].dc = -4;
-					board[i][j].count = 9;
-				}
+				moveTile(r, c, 0, -1);
 			}
 		}
-	} else if (button == RIGHT_BUTTON)
-	{
-		for (int i = 0; i < ROWS; i++)
+		break;
+
+	case RIGHT_BUTTON:
+		for (int c = COLS-1; c >= 0; c--)
 		{
-			for (int j = COLS - 2; j >= 0; j--)
+			for (int r = 0; r < ROWS; r++)
 			{
-				if (board[i][j].r != 0 && ((board[i][j+1].r == 0) || (board[i][j].value == board[i][j+1].value)))
-				{
-					board[i][j].dc = 4;
-					board[i][j].count = 9;
-				}
+				moveTile(r, c, 0, 1);
 			}
 		}
+		break;
+	
+	default:
+		break;
 	}
 	addNewTile();
 }
 
-void drawGame()
+// Calculate tile moves and mergers. Assume tiles in movement direction are fixed.
+void moveTile(int srcRow, int srcCol, int dr, int dc)
 {
-	int hasNonZero = 1;
-	
-	while(hasNonZero)
+	// No tile? No problem.
+	if (!srcBoard[srcRow][srcCol])
 	{
-	waitForVBlank();
-	hasNonZero = 0;
-	for (int i = 0; i < ROWS; i++)
+		return;
+	}
+	// We are moving across columns (left / right).
+	if (dc)
 	{
-		for (int j = 0; j < COLS; j++)
+		// If the tile can't possibly move, copy and halt.
+		switch (srcCol + dc)
 		{
-			if (board[i][j].count == 0) 
+		case -1:
+			dstBoard[srcRow][srcCol] = srcBoard[srcRow][srcCol];
+			return;
+
+		case COLS:
+			dstBoard[srcRow][srcCol] = srcBoard[srcRow][srcCol];
+			return;
+		
+		default:
+			break;
+		}
+
+		// Find the closest occupied tile in the movement direction.
+		int blkCol = srcCol + dc;
+		while (0 <= blkCol && blkCol < COLS)
+		{
+			if (dstBoard[srcRow][blkCol])
 			{
-				board[i][j].dr = 0;
-				board[i][j].dc = 0;
-				continue;
+				break;
 			}
 			else
 			{
-				hasNonZero = 1;
-				drawTile(board[i][j].r, board[i][j].c, board[i][j].r + board[i][j].dr, board[i][j].c + board[i][j].dc, board[i][j].image);
-				board[i][j].r = (board[i][j].r + board[i][j].dr) % 160;
-				board[i][j].c = (board[i][j].c + board[i][j].dc) % 240;
-				board[i][j].count = board[i][j].count - 1;
+				blkCol += dc;
 			}
 		}
-	}
-	}
-	
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLS; j++)
+
+		// It there is no occupied tile, move and halt.
+		if (0 > blkCol || blkCol >= COLS)
 		{
-			if (board[i][j].r == 0) continue;
-			for (int k = i; k < ROWS; k++)
+			dstBoard[srcRow][blkCol-dc] = srcBoard[srcRow][srcCol];
+			return;
+		}
+
+		// If we can merge with the occupied tile, merge and halt, otherwise, move and halt.
+		if (dstBoard[srcRow][blkCol] == srcBoard[srcRow][srcCol])
+		{
+			dstBoard[srcRow][blkCol] = 2 * srcBoard[srcRow][srcCol];
+			return;
+		}
+		else
+		{
+			dstBoard[srcRow][blkCol-dc] = srcBoard[srcRow][srcCol];
+			return;
+		}
+	}
+	// We are moving across rows (up / down).
+	else if (dr)
+	{
+		// If the tile can't possibly move, copy and halt.
+		switch (srcRow + dr)
+		{
+		case -1:
+			dstBoard[srcRow][srcCol] = srcBoard[srcRow][srcCol];
+			return;
+
+		case COLS:
+			dstBoard[srcRow][srcCol] = srcBoard[srcRow][srcCol];
+			return;
+		
+		default:
+			break;
+		}
+
+		// Find the closest occupied tile in the movement direction.
+		int blkRow = srcRow + dr;
+		while (0 <= blkRow && blkRow < ROWS)
+		{
+			if (dstBoard[blkRow][srcCol])
 			{
-				for (int l = j; l < COLS; l++)
-				{
-					if (board[k][l].r == 0) continue;
-					if ((i != k) && (j != l) && (board[i][j].r == board[k][l].r) && (board[i][j].c == board[k][l].c))
-					{
-						int newLocR = ((board[i][j].r - 10) / 36) % ROWS;
-						int newLocC = ((board[i][j].c - 10) / 36) % COLS;
-						board[newLocR][newLocC] = board[i][j];
-						board[i][j].r = 0;
-						board[k][l].r = 0;
-						board[newLocR][newLocC].r = newLocR * 36 + 10;
-						board[newLocR][newLocC].c = newLocC * 36 + 10;
-						board[newLocR][newLocC].value *= 2;
-						if (board[newLocR][newLocC].value == 4)
-						{
-							board[newLocR][newLocC].image = Tile4;
-						} else if (board[newLocR][newLocC].value == 8)
-						{
-							board[newLocR][newLocC].image = Tile8;
-						} else if (board[newLocR][newLocC].value == 16)
-						{
-							board[newLocR][newLocC].image = Tile16;
-						} else if (board[newLocR][newLocC].value == 32)
-						{
-							board[newLocR][newLocC].image = Tile32;
-						} else if (board[newLocR][newLocC].value == 64)
-						{
-							board[newLocR][newLocC].image = Tile64;
-						} else if (board[newLocR][newLocC].value == 128)
-						{
-							board[newLocR][newLocC].image = Tile128;
-						} else if (board[newLocR][newLocC].value == 256)
-						{
-							board[newLocR][newLocC].image = Tile256;
-						} else if (board[newLocR][newLocC].value == 512)
-						{
-							board[newLocR][newLocC].image = Tile512;
-						} else if (board[newLocR][newLocC].value == 1024)
-						{
-							board[newLocR][newLocC].image = Tile1024;
-						} else {
-							board[newLocR][newLocC].image = Tile2048;
-						}
-					}
-				}
+				break;
 			}
-		}
-	}
-	/*
-	Tile newBoard[ROWS][COLS];
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLS; j++)
-		{
-			if (board[i][j].r == 0) {
-				continue;
-			}
-			int newLocR = ((board[i][j].r - 10) / 36) % ROWS;
-			int newLocC = ((board[i][j].r - 10) / 36) % COLS;
-			newBoard[newLocR][newLocC] = board[i][j];
-		}
-	}
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLS; j++)
-		{
-			board[i][j] = newBoard[i][j];
-		}
-	}
-	*/
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLS; j++)
-		{
-			if (board[i][j].r != 0)
+			else
 			{
-				drawImage3(board[i][j].r, board[i][j].c, TILE_SIZE, TILE_SIZE, board[i][j].image);
+				blkRow += dr;
 			}
+		}
+
+		// It there is no occupied tile, move and halt.
+		if (0 > blkRow || blkRow >= ROWS)
+		{
+			dstBoard[blkRow-dr][srcCol] = srcBoard[srcRow][srcCol];
+			return;
+		}
+
+		// If we can merge with the occupied tile, merge and halt, otherwise, move and halt.
+		if (dstBoard[blkRow][srcCol] == srcBoard[srcRow][srcCol])
+		{
+			dstBoard[blkRow][srcCol] = 2 * srcBoard[srcRow][srcCol];
+			return;
+		}
+		else
+		{
+			dstBoard[blkRow-dr][srcCol] = srcBoard[srcRow][srcCol];
+			return;
+		}
+	}
+}
+
+void drawGame()
+{
+	// Draw the Background.
+	//fillBg(BACKGROUND);
+	drawRect(6, 6, 152, 152, TEXT_COLOR);
+	// Draw the tiles.
+	for (int r = 0; r < ROWS; r++)
+	{
+		for (int c = 0; c < COLS; c++)
+		{
+			if (dstBoard[r][c])
+			{
+				drawImage3(OFFSET_R + CELL_R * r, OFFSET_C + CELL_C * c, TILE_SIZE, TILE_SIZE, getImage(dstBoard[r][c]));
+			}
+		}
+	}
+	// Copy dstBoard to srcBoard.
+	for (int r = 0; r < ROWS; r++)
+	{
+		for (int c = 0; c < COLS; c++)
+		{
+			srcBoard[r][c] = dstBoard[r][c];
 		}
 	}
 }
@@ -228,7 +247,50 @@ void clearGame()
 	{
 		for (int j = 0; j < COLS; j++)
 		{
-			board[i][j].r = 0;
+			srcBoard[i][j] = 0;
 		}
+	}
+}
+
+const unsigned short *getImage(int tile)
+{
+	switch (tile)
+	{
+	case 2:
+		return Tile2;
+	
+	case 4:
+		return Tile4;
+
+	case 8:
+		return Tile8;
+
+	case 16:
+		return Tile16;
+
+	case 32:
+		return Tile32;
+
+	case 64:
+		return Tile64;
+
+	case 128:
+		return Tile128;
+
+	case 256:
+		return Tile256;
+
+	case 512:
+		return Tile512;
+
+	case 1024:
+		return Tile1024;
+
+	case 2048:
+		return Tile2048;
+	
+	// This should never happen.
+	default:
+		return Tile2;
 	}
 }

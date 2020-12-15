@@ -53,19 +53,19 @@ int main() {
 			}
 			else if (buttonJustPressed(UP_BUTTON))
 			{
-				animate(UP_BUTTON);
+				play(UP_BUTTON);
 			}
 			else if (buttonJustPressed(DOWN_BUTTON))
 			{
-				animate(DOWN_BUTTON);
+				play(DOWN_BUTTON);
 			}
 			else if (buttonJustPressed(LEFT_BUTTON))
 			{
-				animate(LEFT_BUTTON);
+				play(LEFT_BUTTON);
 			}
 			else if (buttonJustPressed(RIGHT_BUTTON))
 			{
-				animate(RIGHT_BUTTON);
+				play(RIGHT_BUTTON);
 			}
 			else
 			{
