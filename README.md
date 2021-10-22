@@ -1,4 +1,6 @@
 # 2048
+This project is originally from :
+
 CS2110 Class Project: 2048 Game
 
 ## Introduction

@@ -1,7 +1,6 @@
-#define BUTTONS       *(volatile unsigned short*) 0x4000130
-#define KEY_DOWN_NOW(key) (~(BUTTONS) & (1 << key))
 
-typedef enum {
+typedef enum
+{
 	A_BUTTON = 0,
 	B_BUTTON,
 	SELECT_BUTTON,
@@ -15,4 +14,4 @@ typedef enum {
 } Button;
 
 int buttonJustPressed(Button button);
-void updateAllKeys();
+void updateAllKeys(void);

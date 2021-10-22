@@ -1,2 +1,2 @@
-void drawStart();
-void drawEnd();
+void drawStart(void);
+void drawEnd(void);

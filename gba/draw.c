@@ -1,8 +1,9 @@
 #include "draw.h"
 #include "game.h"
 #include "Digits.h"
+#include <stdint.h>
 
-u16 *videoBuffer = (u16*) 0x06000000;
+uint16_t *videoBuffer = (uint16_t*) 0x06000000;
 
 /**
  * Draws one row of an image onto the screen using DMA.
@@ -13,7 +14,7 @@ u16 *videoBuffer = (u16*) 0x06000000;
  * @param[in]	wi	The width of the image being drawn.
  * @param[in]	image	The image to draw a row of.
  */
-void drawImageRow(int rs, int cs, int ri, int wi, const u16* image)
+void drawImageRow(int rs, int cs, int ri, int wi, const uint16_t* image)
 {
 	if (rs >= SCREEN_HEIGHT) return;
 	if (cs >= SCREEN_WIDTH) return;
@@ -32,7 +33,7 @@ void drawImageRow(int rs, int cs, int ri, int wi, const u16* image)
  * @param[in]	height	The height of the image being drawn.
  * @param[in]	image	The image to draw on the screen.
  */
-void drawImage3(int r, int c, int width, int height, const u16* image)
+void drawImage3(int r, int c, int width, int height, const uint16_t* image)
 {
 	for (int i = 0; i < height; i++)
 	{
@@ -53,7 +54,7 @@ void drawImage3(int r, int c, int width, int height, const u16* image)
  * @param[in]	cols	Number of columns in draw.
  * @param[in]	image	The image to draw on the screen.
  */
-void drawImageSection(int rs, int cs, int width, int height, int ri, int ci, int rows, int cols, const u16* image)
+void drawImageSection(int rs, int cs, int width, int height, int ri, int ci, int rows, int cols, const uint16_t* image)
 {
 	if (rs >= SCREEN_HEIGHT) return;
 	if (cs >= SCREEN_WIDTH) return;
@@ -61,9 +62,16 @@ void drawImageSection(int rs, int cs, int width, int height, int ri, int ci, int
 	if (ci + cols > width) return;
 	for (int i = 0; i < rows; i++)
 	{
-		DMA[3].src = image + (width * (ri+i)) + ci;
-		DMA[3].dst = videoBuffer + (SCREEN_WIDTH * (rs+i)) + cs;
-		DMA[3].cnt = DMA_SOURCE_INCREMENT | DMA_ON | DMA_DESTINATION_INCREMENT | cols;
+	    const uint16_t* row = image + (width * (ri+i)) + ci;
+	    const uint16_t* vid = videoBuffer + (SCREEN_WIDTH * (rs+i)) + cs;
+	    for( int z = 0; z < cols; z++ )
+	    {
+	        *vid = *row;
+	        vid++;
+	        row++;
+	    }
+		//DMA[3].dst = videoBuffer + (SCREEN_WIDTH * (rs+i)) + cs;
+		//DMA[3].cnt = DMA_SOURCE_INCREMENT | DMA_ON | DMA_DESTINATION_INCREMENT | cols;
 	}
 }
 
@@ -99,14 +107,14 @@ void drawNumber(int rs, int cs, int number)
  *
  * @param[in]	image	A 240 x 160 pixel image to replace the screen with.
  */
-void drawBgImage(const u16* image)
+void drawBgImage(const uint16_t* image)
 {
 	DMA[3].src = image;
 	DMA[3].dst = videoBuffer;
 	DMA[3].cnt = DMA_SOURCE_INCREMENT | DMA_ON | DMA_DESTINATION_INCREMENT | (SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 
-void fillBg(u16 color)
+void fillBg(uint16_t color)
 {
 	DMA[3].src = &color;
 	DMA[3].dst = videoBuffer;
@@ -121,9 +129,9 @@ void fillBg(u16 color)
  * @param[in]	c	The new column coordinate of the tile.
  * @param[in]	color	The color of the tile.
  */
-void drawTile(int oldr, int oldc, int r, int c, const u16* image)
+void drawTile(int oldr, int oldc, int r, int c, const uint16_t* image)
 {
-	u16 textColor = TEXT_COLOR;
+	uint16_t textColor = TEXT_COLOR;
 	int deleteR = (r >= oldr) ? oldr : r + TILE_SIZE;
 	int deleteC = (c >= oldc) ? oldc : c + TILE_SIZE;
 	int deleteWidth = (c != oldc) ? (c > oldc) ? c - oldc : oldc - c : TILE_SIZE;
@@ -141,7 +149,7 @@ void drawTile(int oldr, int oldc, int r, int c, const u16* image)
  * @param[in]	height	The height of the rectangle.
  * @param[in]	color	The color of the rectangle.
  */
-void drawRect(int r, int c, int width, int height, u16 color)
+void drawRect(int r, int c, int width, int height, uint16_t color)
 {
 	DMA[3].src = &color;
 	for (int i = 0; i < height; i++)
@@ -159,7 +167,7 @@ void drawRect(int r, int c, int width, int height, u16 color)
  * @param[in]	c	Column coordinate of pixel.
  * @param[in]	color	Color of pixel.
  */
-void setPixel(int r, int c, u16 color)
+void setPixel(int r, int c, uint16_t color)
 {
 	videoBuffer[SCREEN_WIDTH * r + c] = color;
 }
