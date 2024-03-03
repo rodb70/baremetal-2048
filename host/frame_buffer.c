@@ -29,7 +29,7 @@ uint16_t key_prev;
 static monitor_t monitor = { 0 };
 monitor_t *m = &monitor;
 
-int quit_filter(void *userdata, SDL_Event *event)
+int QuitFilter(void *userdata, SDL_Event *event)
 {
     (void) userdata;
 
@@ -58,7 +58,7 @@ volatile uint16_t* frame_buffer_init(void)
         exit( -1 );
     }
 
-    SDL_SetEventFilter( quit_filter, NULL );
+    SDL_SetEventFilter( QuitFilter, NULL );
 
     m->window = SDL_CreateWindow( "2048", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                   SCREEN_WIDTH*3, SCREEN_HEIGHT*3, 0 );
