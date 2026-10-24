@@ -14,9 +14,9 @@ int main(void)
 
     enum GBAState state = DRAW_START;
 
-    while(1)
+    while( 1 )
     {
-        switch(state)
+        switch( state )
         {
         case DRAW_START:
             waitForVBlank();
@@ -26,7 +26,7 @@ int main(void)
             break;
         case START:
             updateAllKeys();
-            if( buttonJustPressed( START_BUTTON ))
+            if( buttonJustPressed( START_BUTTON ) )
             {
                 state = DRAW_GAME;
                 addNewTile();
@@ -39,7 +39,7 @@ int main(void)
         case DRAW_GAME:
             waitForVBlank();
             drawGame();
-            if (gameOver())
+            if( gameOver() )
             {
                 state = DRAW_END;
             }
@@ -50,31 +50,31 @@ int main(void)
             break;
         case GAME:
             updateAllKeys();
-            if (buttonJustPressed(SELECT_BUTTON))
+            if( buttonJustPressed( SELECT_BUTTON ) )
             {
                 state = DRAW_END;
                 break;
             }
-            else if (buttonJustPressed(START_BUTTON))
+            else if( buttonJustPressed( START_BUTTON ) )
             {
                 state = DRAW_START;
                 break;
             }
-            else if (buttonJustPressed(UP_BUTTON))
+            else if( buttonJustPressed( UP_BUTTON ) )
             {
-                play(UP_BUTTON);
+                play( UP_BUTTON );
             }
-            else if (buttonJustPressed(DOWN_BUTTON))
+            else if( buttonJustPressed( DOWN_BUTTON ) )
             {
-                play(DOWN_BUTTON);
+                play( DOWN_BUTTON );
             }
-            else if (buttonJustPressed(LEFT_BUTTON))
+            else if( buttonJustPressed( LEFT_BUTTON ) )
             {
-                play(LEFT_BUTTON);
+                play( LEFT_BUTTON );
             }
-            else if (buttonJustPressed(RIGHT_BUTTON))
+            else if( buttonJustPressed( RIGHT_BUTTON ) )
             {
-                play(RIGHT_BUTTON);
+                play( RIGHT_BUTTON );
             }
             else
             {
@@ -89,7 +89,7 @@ int main(void)
             break;
         case END:
             updateAllKeys();
-            if (buttonJustPressed(SELECT_BUTTON))
+            if( buttonJustPressed( SELECT_BUTTON ) )
             {
 
                 state = DRAW_START;

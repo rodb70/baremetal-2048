@@ -13,14 +13,14 @@
 
 #include "keys.h"
 
-extern int srcBoard[ COLS ][ ROWS ];
-extern int dstBoard[ COLS ][ ROWS ];
+extern int srcBoard[COLS][ROWS];
+extern int dstBoard[COLS][ROWS];
 extern int score;
 
-void addNewTile( void );
-void play( Button button );
-void moveTile( int srcRow, int srcCol, int dr, int dc );
-const unsigned short *getImage( int tile );
-void clearGame( void );
-void drawGame( void );
-int gameOver( void );
+void addNewTile(void);
+void play(Button button);
+void moveTile(int srcRow, int srcCol, int dr, int dc);
+const unsigned short* getImage(int tile);
+void clearGame(void);
+void drawGame(void);
+int gameOver(void);

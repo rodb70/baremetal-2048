@@ -4,13 +4,13 @@
 #include "endScreen.h"
 #include "game.h"
 
-void drawStart()
+void drawStart(void)
 {
-	drawBgImage(startScreen);
+    drawBgImage( startScreen );
 }
 
-void drawEnd()
+void drawEnd(void)
 {
-	drawBgImage(endScreen);
-	drawNumber(100, 140, score);
+    drawBgImage( endScreen );
+    drawNumber( 100, 140, score );
 }

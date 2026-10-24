@@ -5,3 +5,4 @@
 *.gba
 *.d
 /build/
+/baremetal-2048 Default.launch

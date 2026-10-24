@@ -13,7 +13,7 @@ typedef struct
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
-    uint16_t tft_fb[ SCREEN_HEIGHT ][ SCREEN_WIDTH ];
+    uint16_t tft_fb[SCREEN_HEIGHT][SCREEN_WIDTH];
 
 } monitor_t;
 
@@ -24,7 +24,6 @@ uint16_t *vid_mem;
 uint32_t hw_buttons = BUT_INIT;
 uint16_t key_cur;
 uint16_t key_prev;
-
 
 static monitor_t monitor = { 0 };
 monitor_t *m = &monitor;
@@ -50,7 +49,7 @@ int QuitFilter(void *userdata, SDL_Event *event)
 
 volatile uint16_t* frame_buffer_init(void)
 {
-    hw_buttons = ~( 0 );
+    hw_buttons = ~(0);
     /* Initialise the SDL */
     if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
     {
@@ -61,14 +60,14 @@ volatile uint16_t* frame_buffer_init(void)
     SDL_SetEventFilter( QuitFilter, NULL );
 
     m->window = SDL_CreateWindow( "2048", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                                  SCREEN_WIDTH*3, SCREEN_HEIGHT*3, 0 );
+    SCREEN_WIDTH * 3, SCREEN_HEIGHT * 3, 0 );
     assert( m->window );
 
     m->renderer = SDL_CreateRenderer( m->window, -1, SDL_RENDERER_SOFTWARE );
     assert( m->renderer );
 
     m->texture = SDL_CreateTexture( m->renderer, SDL_PIXELFORMAT_BGR555, SDL_TEXTUREACCESS_STATIC,
-                                    SCREEN_WIDTH, SCREEN_HEIGHT );
+    SCREEN_WIDTH, SCREEN_HEIGHT );
     assert( m->texture );
 
     SDL_SetTextureBlendMode( m->texture, SDL_BLENDMODE_BLEND );
@@ -82,12 +81,16 @@ int frame_buffer_switch(int offset)
 {
     (void) offset;
 
-    int rslt = SDL_UpdateTexture( m->texture, NULL, m->tft_fb, SCREEN_WIDTH * sizeof( uint16_t ));
+    int rslt = SDL_UpdateTexture( m->texture, NULL, m->tft_fb, SCREEN_WIDTH * sizeof(uint16_t) );
+    if( rslt != 0 )
+    {
+        printf( "SDL_UpdateTexture failed: %s\n", SDL_GetError() );
+    }
     assert( 0 == rslt );
     rslt = SDL_RenderClear( m->renderer );
     assert( 0 == rslt );
 
-    /* Update the renderer with the texture containing the rendered image */
+/* Update the renderer with the texture containing the rendered image */
     rslt = SDL_RenderCopy( m->renderer, m->texture, NULL, NULL );
     assert( 0 == rslt );
 
@@ -102,7 +105,7 @@ void drawRect(int col, int row, int height, int width, unsigned short color)
     {
         for( int w = 0; w < width; w++ )
         {
-            m->tft_fb[ col + h ][ row + w ] = color;
+            m->tft_fb[col + h][row + w] = color;
         }
     }
 }
@@ -113,7 +116,7 @@ void background(int height, int width, unsigned short color)
     {
         for( int w = 0; w < width; w++ )
         {
-            m->tft_fb[ h ][ w ] = color;
+            m->tft_fb[h][w] = color;
         }
     }
 }
@@ -125,7 +128,7 @@ void fillBg(uint16_t color)
 
 void drawBgImage(const unsigned short *image)
 {
-    memcpy( m->tft_fb, image, sizeof( m->tft_fb ));
+    memcpy( m->tft_fb, image, sizeof(m->tft_fb) );
 }
 
 void drawImage3(int row, int col, int height, int width, const unsigned short *image)
@@ -134,7 +137,7 @@ void drawImage3(int row, int col, int height, int width, const unsigned short *i
     {
         for( int r = 0; r < width; r++ )
         {
-            m->tft_fb[ col + c ][ row + r ] = *image;
+            m->tft_fb[col + c][row + r] = *image;
             image++;
         }
     }
@@ -144,7 +147,7 @@ void drawHorizontal(int row, int col, int width, unsigned int color)
 {
     for( int r = 0; r < width; r++ )
     {
-        m->tft_fb[ col ][ row + r ] = color;
+        m->tft_fb[col][row + r] = color;
     }
 }
 
@@ -154,7 +157,7 @@ void drawVertical(int row, int col, int height, int width, unsigned int color)
     {
         for( int r = 0; r < width; r++ )
         {
-            m->tft_fb[ col + c ][ row + r ] = color;
+            m->tft_fb[col + c][row + r] = color;
         }
     }
 }
@@ -172,45 +175,44 @@ void drawVertical(int row, int col, int height, int width, unsigned int color)
  * @param[in]   cols    Number of columns in draw.
  * @param[in]   image   The image to draw on the screen.
  */
-void drawImageSection(int cs, int rs, int height, int width, int ri, int ci, int rows, int cols, const uint16_t* image)
+void drawImageSection(int cs, int rs, int height, int width, int ri, int ci, int rows, int cols,
+        const uint16_t *image)
 {
-    if (cs >= SCREEN_HEIGHT) return;
-    if (rs >= SCREEN_WIDTH) return;
-    if (ri + rows > width) return;
-    if (ci + cols > height) return;
+    if( cs >= SCREEN_HEIGHT )
+        return;
+    if( rs >= SCREEN_WIDTH )
+        return;
+    if( ri + rows > width )
+        return;
+    if( ci + cols > height )
+        return;
 
-    for (int i = 0; i < rows; i++)
+    for( int i = 0; i < rows; i++ )
     {
-        const uint16_t* row = image + (height * (ri+i)) + ci;
+        const uint16_t *row = image + (height * (ri + i)) + ci;
         for( int z = 0; z < cols; z++ )
         {
-            m->tft_fb[ cs + i ][ rs + z ] =  *(row++);
+            m->tft_fb[cs + i][rs + z] = *(row++);
         }
     }
 }
 
 void drawNumber(int rs, int cs, int number)
 {
-    static int subtractors[] = {100000, 10000, 1000, 100, 10, 1};
-    for (int i = 0; i < 6; i++)
+    static int subtractors[] = { 100000, 10000, 1000, 100, 10, 1 };
+    for( int i = 0; i < 6; i++ )
     {
         int count = 0;
-        while (number >= subtractors[i])
+        while( number >= subtractors[i] )
         {
             number -= subtractors[i];
             count += 1;
         }
-        drawImageSection(
-            rs,
-            cs + (NUM_WIDTH + 2) * i,
-            DIGITS_WIDTH,
-            DIGITS_HEIGHT,
-            0,
-            count * NUM_WIDTH,
-            NUM_HEIGHT,
-            NUM_WIDTH,
-            Digits
-        );
+        drawImageSection( rs, cs + (NUM_WIDTH + 2) * i,
+        DIGITS_WIDTH,
+        DIGITS_HEIGHT, 0, count * NUM_WIDTH,
+        NUM_HEIGHT,
+        NUM_WIDTH, Digits );
     }
 }
 
@@ -220,37 +222,37 @@ uint32_t poll_controller(uint32_t delay)
     uint32_t mask = 0;
     int keyPressed = 0;
 
-    while( SDL_PollEvent( &event ))
+    while( SDL_PollEvent( &event ) )
     {
         switch( event.key.keysym.sym )
         {
-        case SDLK_a :
+        case SDLK_a:
             mask |= KEY_A;
             break;
 
-        case SDLK_b :
+        case SDLK_b:
             mask |= KEY_B;
             break;
 
-        case SDLK_q :
+        case SDLK_q:
             mask |= KEY_L;
             break;
 
-        case SDLK_w :
+        case SDLK_w:
             mask |= KEY_R;
             break;
 
-        case SDLK_SPACE :
+        case SDLK_SPACE:
             mask |= KEY_SELECT;
             break;
 
-        case SDLK_RETURN2 :
-        case SDLK_RETURN :
+        case SDLK_RETURN2:
+        case SDLK_RETURN:
             mask |= KEY_START;
             break;
 
-        case SDLK_KP_0 :
-        case SDLK_0 :
+        case SDLK_KP_0:
+        case SDLK_0:
             break;
 
         case SDLK_RIGHT:
@@ -298,28 +300,33 @@ uint32_t poll_controller(uint32_t delay)
     }
     else
     {
-        hw_buttons &= ~( mask );
+        hw_buttons &= ~(mask);
     }
 
-    SDL_Delay( delay ); /* Sleep for 5 millisecond */
+    SDL_Delay( delay );/* Sleep for 5 millisecond */
 
     return hw_buttons;
 }
 
-uint16_t key_poll( void )
+uint32_t button_get(void)
+{
+    return hw_buttons;
+}
+
+uint16_t key_poll(void)
 {
     key_prev = key_cur;
     key_cur = hw_buttons;
     return key_cur;
 }
 
-void key_init( void )
+void key_init(void)
 {
     hw_buttons = BUT_INIT;
 }
 
 void waitForVBlank(void)
 {
-    poll_controller(16);
-    frame_buffer_switch(0);
+    poll_controller( 16 );
+    frame_buffer_switch( 0 );
 }
